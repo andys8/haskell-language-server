@@ -69,6 +69,7 @@ import Ide.Plugin.Example2                as Example2
 import Ide.Plugin.GhcIde                  as GhcIde
 import Ide.Plugin.Floskell                as Floskell
 import Ide.Plugin.Ormolu                  as Ormolu
+import Ide.Plugin.Brittany                as Brittany
 import Ide.Plugin.Pragmas                 as Pragmas
 
 
@@ -101,6 +102,7 @@ idePlugins pid includeExamples
       -- , genericDescriptor     "generic"
       -- , ghcmodDescriptor      "ghcmod"
       , Ormolu.descriptor   "ormolu"
+      , Brittany.descriptor "brittany"
       ]
     examplePlugins =
       [Example.descriptor  "eg"

@@ -1,4 +1,4 @@
-resolver: lts-15.2
+resolver: lts-15.5
 
 packages:
 - .
@@ -6,6 +6,7 @@ packages:
 
 extra-deps:
 - apply-refact-0.7.0.0
+- brittany-0.12.1.1
 - bytestring-trie-0.2.5.0
 # - cabal-helper-1.0.0.0
 - github: DanielG/cabal-helper

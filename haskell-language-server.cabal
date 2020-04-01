@@ -35,6 +35,7 @@ library
       Ide.Plugin.Example
       Ide.Plugin.Example2
       Ide.Plugin.GhcIde
+      Ide.Plugin.Brittany
       Ide.Plugin.Ormolu
       Ide.Plugin.Pragmas
       Ide.Plugin.Floskell

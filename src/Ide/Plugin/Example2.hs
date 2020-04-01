@@ -79,28 +79,12 @@ exampleRules :: Rules ()
 exampleRules = do
   define $ \Example2 file -> do
     _pm <- getParsedModule file
-    let diag = mkDiag file "example2" DsError (Range (Position 0 0) (Position 1 0)) "example2 diagnostic, hello world"
-    return ([diag], Just ())
+    return ([], Just ())
 
   action $ do
     files <- getFilesOfInterest
     void $ uses Example2 $ HashSet.toList files
 
-mkDiag :: NormalizedFilePath
-       -> DiagnosticSource
-       -> DiagnosticSeverity
-       -> Range
-       -> T.Text
-       -> FileDiagnostic
-mkDiag file diagSource sev loc msg = (file, D.ShowDiag,)
-    Diagnostic
-    { _range    = loc
-    , _severity = Just sev
-    , _source   = Just diagSource
-    , _message  = msg
-    , _code     = Nothing
-    , _relatedInformation = Nothing
-    }
 
 -- ---------------------------------------------------------------------
 -- code actions
