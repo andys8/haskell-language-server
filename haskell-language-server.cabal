@@ -50,6 +50,7 @@ library
       base >=4.7 && <5
     , aeson
     , binary
+    , brittany
     , bytestring
     , Cabal
     , cabal-helper >= 1.0

@@ -1,24 +1,26 @@
 {-# LANGUAGE OverloadedStrings #-}
 -- | Brittany is a tool to format source code.
 module Ide.Plugin.Brittany
-  (
-    descriptor
-  , provider
-  )
 where
 
-import           Control.Lens
+import           Control.Lens hiding (List)
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Maybe      ( MaybeT
                                                 , runMaybeT
                                                 )
+import qualified Data.ByteString.Lazy           as BS
+import qualified Data.Text.Encoding             as T
 import           Data.Aeson
 import           Data.Coerce
 import           Data.Semigroup
 import           Data.Text                      ( Text )
 import qualified Data.Text                     as T
-import           Haskell.Ide.Engine.MonadTypes
-import           Haskell.Ide.Engine.PluginUtils
+import           Ide.Plugin.Formatter
+import           Ide.Types
+import           Development.IDE.Core.Rules
+import           Development.IDE.Types.Diagnostics as D
+import           Development.IDE.Types.Location
+import           Development.Shake
 import           Language.Haskell.Brittany
 import qualified Language.Haskell.LSP.Types    as J
 import qualified Language.Haskell.LSP.Types.Lens
@@ -41,45 +43,59 @@ descriptor plId = PluginDescriptor
   , pluginCompletionProvider = Nothing
   }
 
+provider :: FormattingProvider IO
+provider _ideState _typ _contents _fp _ = do
+    return $ Left $ responseError (T.pack $  "floskellCmd: " ++ "TODO")
+
+    -- let file = fromNormalizedFilePath fp
+    -- config <- findConfigOrDefault file
+    -- let (range, selectedContents) = case typ of
+    --       FormatText    -> (fullRange contents, contents)
+    --       FormatRange r -> (r, extractRange r contents)
+    --     result = reformat config (Just file) (BS.fromStrict (T.encodeUtf8 selectedContents))
+    -- case result of
+    --   Left  err -> return $ Left $ responseError (T.pack $  "floskellCmd: " ++ err)
+    --   Right new -> return $ Right $ List [TextEdit range (T.decodeUtf8 (BS.toStrict new))]
+
 -- | Formatter provider of Brittany.
 -- Formats the given source in either a given Range or the whole Document.
 -- If the provider fails an error is returned that can be displayed to the user.
-provider
-  :: MonadIO m
-  => Text
-  -> Uri
-  -> FormattingType
-  -> FormattingOptions
-  -> m (IdeResult [TextEdit])
-provider text uri formatType opts = pluginGetFile "brittanyCmd: " uri $ \fp ->
-  do
-    confFile <- liftIO $ getConfFile fp
-    let (range, selectedContents) = case formatType of
-          FormatText    -> (fullRange text, text)
-          FormatRange r -> (normalize r, extractRange r text)
+-- provider
+--   :: MonadIO m
+--   => Text
+--   -> Uri
+--   -> FormattingType
+--   -> FormattingOptions
+--   -> m (IdeResult [TextEdit])
+-- provider text uri formatType opts = pluginGetFile "brittanyCmd: " uri $ \fp ->
+--   do
+--     confFile <- liftIO $ getConfFile fp
+--     let (range, selectedContents) = case formatType of
+--           FormatText    -> (fullRange text, text)
+--           FormatRange r -> (normalize r, extractRange r text)
 
-    res <- formatText confFile opts selectedContents
-    case res of
-      Left err -> return $ IdeResultFail
-        (IdeError PluginError
-                  (T.pack $ "brittanyCmd: " ++ unlines (map showErr err))
-                  Null
-        )
-      Right newText -> do
-        let textEdit = J.TextEdit range newText
-        return $ IdeResultOk [textEdit]
+--     res <- formatText confFile opts selectedContents
+--     case res of
+--       Left err -> return $ IdeResultFail
+--         (IdeError PluginError
+--                   (T.pack $ "brittanyCmd: " ++ unlines (map showErr err))
+--                   Null
+--         )
+--       Right newText -> do
+--         let textEdit = J.TextEdit range newText
+--         return $ IdeResultOk [textEdit]
 
--- | Primitive to format text with the given option.
--- May not throw exceptions but return a Left value.
--- Errors may be presented to the user.
-formatText
-  :: MonadIO m
-  => Maybe FilePath -- ^ Path to configs. If Nothing, default configs will be used.
-  -> FormattingOptions -- ^ Options for the formatter such as indentation.
-  -> Text -- ^ Text to format
-  -> m (Either [BrittanyError] Text) -- ^ Either formatted Text or a error from Brittany.
-formatText confFile opts text = liftIO $ runBrittany tabSize confFile text
-  where tabSize = opts ^. J.tabSize
+-- -- | Primitive to format text with the given option.
+-- -- May not throw exceptions but return a Left value.
+-- -- Errors may be presented to the user.
+-- formatText
+--   :: MonadIO m
+--   => Maybe FilePath -- ^ Path to configs. If Nothing, default configs will be used.
+--   -> FormattingOptions -- ^ Options for the formatter such as indentation.
+--   -> Text -- ^ Text to format
+--   -> m (Either [BrittanyError] Text) -- ^ Either formatted Text or a error from Brittany.
+-- formatText confFile opts text = liftIO $ runBrittany tabSize confFile text
+--   where tabSize = opts ^. J.tabSize
 
 -- | Extend to the line below and above to replace newline character.
 normalize :: Range -> Range
