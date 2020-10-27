@@ -71,10 +71,7 @@ runBrittany :: Int              -- ^ tab  size
             -> IO (Either [BrittanyError] Text)
 runBrittany tabSize confPath text = do
   let cfg = mempty
-              { _conf_layout =
-                  mempty { _lconfig_indentAmount = opt (coerce tabSize)
-                         }
-              , _conf_forward =
+             { _conf_forward =
                   (mempty :: CForwardOptions Option)
                     { _options_ghc = opt (runIdentity ( _options_ghc forwardOptionsSyntaxExtsEnabled))
                     }
